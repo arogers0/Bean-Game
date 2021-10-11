@@ -88,8 +88,8 @@ def socket_setup():
     server_port = int(sys.argv[2])
     server_host = sys.argv[1]
     socket_obj = socket(AF_INET, SOCK_STREAM)  # make a TCP/IP socket object
-    socket_obj.connect(
-        (server_host, server_port))  # connect to server machine and port
+    # connect to server machine and port
+    socket_obj.connect((server_host, server_port))
     return socket_obj
 
 

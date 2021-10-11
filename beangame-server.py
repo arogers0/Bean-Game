@@ -5,41 +5,50 @@
 ############################################################################
 
 import sys
-import string
 import random
 from socket import *  # get socket constructor and constants
 
-if len(sys.argv) != 2:
-    print("usage: python " + sys.argv[0] + "port-number (> 1024)")
-    sys.exit("error in parameters.")
 
-myHost = ''  # server machine, '' means local host
-myPort = int(sys.argv[1])
+def main():
 
-sockobj = socket(AF_INET, SOCK_STREAM)  # make a TCP socket object
-sockobj.bind((myHost, myPort))  # bind it to server port number
-sockobj.listen(5)  # listen, allow 5 pending connects
+    # verify usage
+    if len(sys.argv) != 2:
+        print("usage: python " + sys.argv[0] + "port-number (> 1024)")
+        sys.exit("error in parameters.")
 
-while True:  # listen until process killed
-    connection, address = sockobj.accept()  # wait for next client connect
-    print('Server connected by', address)  # connection is a new socket
-    while True:
-        data = connection.recv(1024)  # read next line on client socket
-        if not data: break  # send a reply line to the client
-        num_beans = int(bytes.decode(data))
+    myHost = ''  # server machine, '' means localhost
+    myPort = int(sys.argv[1])
 
-        # CPU turn
-        cpuTake = 0
-        if num_beans > 3:
-            cpuTake = random.randint(1, 3)
-        if num_beans == 3:
-            cpuTake = 3
-        if num_beans == 2:
-            cpuTake = 2
-        elif num_beans == 1:
-            cpuTake = 1
-        num_beans -= cpuTake
+    socket_obj = socket(AF_INET, SOCK_STREAM)  # make a TCP socket object
+    socket_obj.bind((myHost, myPort))  # bind it to server port number
+    socket_obj.listen(5)  # listen, allow 5 pending connects
 
-        connection.send(str.encode(str(num_beans)))
-        # until eof when socket closed
-    connection.close()
+    while True:  # listen until process killed
+        connection, address = socket_obj.accept()  # wait for next client connect
+        print('Server connected by', address)  # connection is a new socket
+        while True:
+            data = connection.recv(1024)  # read next line on client socket
+            if not data: break
+            num_beans = int(bytes.decode(data))
+
+            # CPU turn
+            cpuTake = 0
+            if num_beans > 3:
+                cpuTake = random.randint(1, 3)
+            if num_beans == 3:
+                cpuTake = 3
+            if num_beans == 2:
+                cpuTake = 2
+            elif num_beans == 1:
+                cpuTake = 1
+            num_beans -= cpuTake
+
+            # send number of remaining beans to the client
+            connection.send(str.encode(str(num_beans)))
+
+        # close socket
+        connection.close()
+
+
+if __name__ == '__main__':
+    main()
